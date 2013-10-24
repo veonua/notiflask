@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User {{ email }}</title>
+</head>
+<body>
+    <h1>User {{ email }}</h1>
+
+    <table>
+    {% for device in devices %}
+        <td><tr>{{ device.deviceId }}</tr></td>
+    {% else %}
+        <td><tr>no devices found</tr></td>
+    {% endfor %}
+    </table>
+    total : {{ devices|length }}
+</body>
+</html>
