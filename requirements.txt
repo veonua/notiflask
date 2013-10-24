@@ -3,3 +3,4 @@ Jinja2==2.7.1
 MarkupSafe==0.18
 Werkzeug==0.9.4
 gunicorn==0.17.2
+mongoengine==0.8.4
