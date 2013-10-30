@@ -83,12 +83,15 @@ def send():
 def github_hook(uid):
 
     payload = json.loads(request.form['payload'])
-    name = payload['pusher']['name']
+    name = payload['pusher']['name'] + "(" + payload['pusher']['email'] + ")"
+    uri = payload['repository']['uri']
 
     user = getUser(uid)
-    data = {'message': name}
+    data = {'message': name,
+            'uri': uri}
 
     sendToUser(user, data)
+    return "ok"
 
 
 @app.route('/login')
