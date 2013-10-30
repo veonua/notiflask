@@ -14,5 +14,15 @@
     {% endfor %}
     </table>
     total : {{ devices|length }}
+
+    <h1>Send Message</h1>
+
+    <form method="post" action="/send">
+        <input type="hidden" name="email" value="{{ email }}">
+        <label for="message">message:</label>
+        <input type="text" name="message" id="message">
+        <br>
+        <input type="submit" value="Send">
+    </form>
 </body>
 </html>

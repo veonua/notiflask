@@ -1,4 +1,5 @@
 from operator import contains
+from gcm import gcm_send_request
 from userModel import User, Device
 from flask import Flask, render_template, redirect, request, abort
 from flask.ext.mongoengine import MongoEngine
@@ -56,6 +57,20 @@ def get_user(uid):
         abort(404)
 
     return render_template("user.html", email=user.email, devices=user.devices)
+
+
+@app.route('/send', methods=['POST'])
+def send():
+    email = request.form['email']
+    user = User.objects(email=email).first()
+    devs = user.devices
+    if devs is None:
+        return redirect("/")
+
+    dd = [dev.deviceId for dev in devs]
+    data = {"message": request.form['message']}
+    res = gcm_send_request(dd, data)
+    return render_template('send_result.html', res=res)
 
 
 @app.route('/login')
