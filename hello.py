@@ -1,3 +1,4 @@
+import json
 from operator import contains
 from gcm import gcm_send_request
 from userModel import User, Device
@@ -46,12 +47,15 @@ def register_device(deviceId):
         return redirect("/user/"+userEmail)
 
 
+def getUser(uid):
+    if contains(uid, "@"):
+        return User.objects(email=uid).first()
+    else:
+        return User.objects(pk=uid).first()
+
 @app.route('/user/<uid>')
 def get_user(uid):
-    if contains(uid, "@"):
-        user = User.objects(email=uid).first()
-    else:
-        user = User.objects(pk=uid).first()
+    user = getUser(uid)
 
     if user is None:
         abort(404)
@@ -59,18 +63,32 @@ def get_user(uid):
     return render_template("user.html", email=user.email, devices=user.devices)
 
 
+def sendToUser(user, data):
+    dd = [dev.deviceId for dev in user.devices]
+    return gcm_send_request(dd, data)
+
+
 @app.route('/send', methods=['POST'])
 def send():
     email = request.form['email']
     user = User.objects(email=email).first()
-    devs = user.devices
-    if devs is None:
-        return redirect("/")
 
-    dd = [dev.deviceId for dev in devs]
     data = {"message": request.form['message']}
-    res = gcm_send_request(dd, data)
+    res = sendToUser(user, data)
+
     return render_template('send_result.html', res=res)
+
+
+@app.route('/github/<uid>', methods=['POST'])
+def github_hook(uid):
+
+    payload = json.loads(request.form['payload'])
+    name = payload['pusher']['name']
+
+    user = getUser(uid)
+    data = {'message': name}
+
+    sendToUser(user, data)
 
 
 @app.route('/login')
