@@ -84,7 +84,7 @@ def github_hook(uid):
 
     payload = json.loads(request.form['payload'])
     name = payload['pusher']['name'] + "(" + payload['pusher']['email'] + ")"
-    uri = payload['repository']['uri']
+    uri = payload['repository']['url']
 
     user = getUser(uid)
     data = {'message': name,
