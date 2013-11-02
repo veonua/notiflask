@@ -3,7 +3,8 @@ from operator import contains
 
 from flask import render_template, redirect, request, abort, session
 
-from notiflask.gcm import gcm_send_request
+from notiflask.gcm import gcm_send_request, send_to_user
+from notiflask.oauth.handler import login
 from notiflask.userModel import User, Device
 from flask.ext.mongoengine import MongoEngine
 from notiflask import app
@@ -28,7 +29,7 @@ def home():
 def register_device(deviceId):
     if request.method == 'GET':
         if 'userId' not in session:
-            return redirect("/auth?deviceId=" + deviceId)
+            return login()
 
         return render_template("register_device.html", deviceId=deviceId, userName=session['user']['name'])
     if request.method == 'POST':
@@ -58,18 +59,13 @@ def get_user(uid):
     return render_template("user.html", email=user.email, devices=user.devices)
 
 
-def sendToUser(user, data):
-    dd = [dev.deviceId for dev in user.devices]
-    return gcm_send_request(dd, data)
-
-
 @app.route('/send', methods=['POST'])
 def send():
     email = request.form['email']
     user = User.objects(email=email).first()
 
     data = {"message": request.form['message']}
-    res = sendToUser(user, data)
+    res = send_to_user(user, data)
 
     return render_template('send_result.html', res=res)
 
@@ -84,7 +80,7 @@ def github_hook(uid):
     data = {'message': name,
             'uri': uri}
 
-    sendToUser(user, data)
+    send_to_user(user, data)
     return "ok"
 
 

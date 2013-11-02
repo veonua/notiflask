@@ -1,9 +1,11 @@
+import urllib2
+from urlparse import urlparse
+
 from oauth2client.client import FlowExchangeError, flow_from_clientsecrets
 from pymongo.errors import DuplicateKeyError
 from flask import redirect, request, abort, session
-from notiflask import util
+from notiflask import util, app
 
-from notiflask.hello import app
 from notiflask.userModel import User
 from flask.ext.mongoengine import MongoEngine
 
@@ -14,7 +16,7 @@ SCOPES = ('https://www.googleapis.com/auth/glass.timeline '
           'https://www.googleapis.com/auth/userinfo.email ')
 
 
-def create_oauth_flow(request=None):
+def create_oauth_flow():
     """Create OAuth2.0 flow controller."""
     flow = flow_from_clientsecrets('client_secrets.json', scope=SCOPES)
 
@@ -22,13 +24,29 @@ def create_oauth_flow(request=None):
     return flow
 
 
+def login():
+    return redirect('/auth?referrer=' + urllib2.quote(request.full_path))
+
+
 @app.route('/auth')
 def auth():
-    flow = create_oauth_flow(request)
-    flow.params['approval_prompt'] = 'force'
+    flow = create_oauth_flow()
+    if request.args.get('referrer', None) is not None:
+        flow.params['state'] = request.args.get('referrer', None)
+    elif request.referrer is not None:
+        parsed = urlparse(request.referrer)
+        flow.params['state'] = urllib2.quote(parsed.path)
+
     uri = flow.step1_get_authorize_url()
     # Perform the redirect.
     return redirect(str(uri))
+
+
+@app.route('/logout')
+def logout():
+    session.pop('userId', None)
+    session.pop('user', None)
+    return redirect("/")
 
 
 @app.route('/oauth2callback')
@@ -37,7 +55,7 @@ def oauth2callback():
     if not code:
         abort(400)
 
-    oauth_flow = create_oauth_flow(request)
+    oauth_flow = create_oauth_flow()
     # Perform the exchange of the code. If there is a failure with exchanging
     # the code, return None.
     try:
@@ -64,4 +82,7 @@ def oauth2callback():
     session['userId'] = str(user.pk)
     session['user'] = {'name': user.name, 'email': user.email}
 
-    return redirect("/")
+    state = request.args.get('state', None)
+    if state is None:
+        return redirect("/")
+    return redirect(urllib2.unquote(state))

@@ -5,6 +5,7 @@ __author__ = 'veon'
 
 class Device(EmbeddedDocument):
     deviceId = StringField()
+    type = StringField(choices=("Android", "Glass", "iOS", "Browser"))
 
 
 class User(Document):

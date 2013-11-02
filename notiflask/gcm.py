@@ -10,7 +10,6 @@ def gcm_send_request(deviceIds, data):
                  "registration_ids": deviceIds,
                  }
 
-
     url = 'https://android.googleapis.com/gcm/send'
     myKey = "AIzaSyA5rLGhEptdNR7sYfo1YLkzZhG7dyXneKk"
     data = json.dumps(json_data)
@@ -20,3 +19,6 @@ def gcm_send_request(deviceIds, data):
     return json.loads(f.read())
 
 
+def send_to_user(user, data):
+    dd = [dev.deviceId for dev in user.devices]
+    return gcm_send_request(dd, data)
