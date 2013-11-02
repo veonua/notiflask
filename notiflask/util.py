@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """Utility functions for the Quickstart."""
-from libs.apiclient.discovery import build
+from notiflask.libs.apiclient.discovery import build
 
 __author__ = 'alainv@google.com (Alain Vongsouvanh)'
 
