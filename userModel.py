@@ -1,4 +1,4 @@
-from mongoengine import EmbeddedDocument, StringField, Document, ListField, EmbeddedDocumentField, EmailField
+from mongoengine import EmbeddedDocument, StringField, Document, ListField, EmbeddedDocumentField, EmailField, BooleanField
 
 __author__ = 'veon'
 
@@ -8,7 +8,18 @@ class Device(EmbeddedDocument):
 
 
 class User(Document):
-    email = EmailField(unique=True)
+    name = StringField()
+    locale = StringField(max_length=2)
+    gender = BooleanField()
+    googleId = StringField()
+    email = EmailField()
     devices = ListField(EmbeddedDocumentField(Device))
+
+    meta = {
+        'indexes': [
+            {'fields': ['googleId'], 'sparse': True, 'unique': True},
+            {'fields': ['email'],    'sparse': True, 'unique': True}
+        ]
+    }
 
 

@@ -1,9 +1,17 @@
 import json
 from operator import contains
+import httplib2
+from oauth2client.client import FlowExchangeError
+from pymongo.errors import DuplicateKeyError
 from gcm import gcm_send_request
+
+from oauth.handler import create_oauth_flow
 from userModel import User, Device
+
 from flask import Flask, render_template, redirect, request, abort
 from flask.ext.mongoengine import MongoEngine
+import util
+
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -22,6 +30,11 @@ app.config['MONGODB_SETTINGS'] = {
 # Create database connection object
 db = MongoEngine(app)
 
+@app.before_first_request
+def init():
+    #User.drop_collection()
+    pass
+
 # Views
 @app.route('/')
 def home():
@@ -29,8 +42,9 @@ def home():
 
 
 @app.route('/params/<int:_id>')
-def params( _id = 0):
+def params(_id=0):
     return "This is '" + str(_id) + "'"
+
 
 @app.route('/register_device/<deviceId>', methods=['GET', 'POST'])
 def register_device(deviceId):
@@ -44,7 +58,7 @@ def register_device(deviceId):
         newDevice = Device(deviceId=deviceId)
         user.devices.append(newDevice)
         user.save()
-        return redirect("/user/"+userEmail)
+        return redirect("/user/" + userEmail)
 
 
 def getUser(uid):
@@ -52,6 +66,7 @@ def getUser(uid):
         return User.objects(email=uid).first()
     else:
         return User.objects(pk=uid).first()
+
 
 @app.route('/user/<uid>')
 def get_user(uid):
@@ -81,7 +96,6 @@ def send():
 
 @app.route('/github/<uid>', methods=['POST'])
 def github_hook(uid):
-
     payload = json.loads(request.form['payload'])
     name = payload['pusher']['name'] + "(" + payload['pusher']['email'] + ")"
     uri = payload['repository']['url']
@@ -94,9 +108,51 @@ def github_hook(uid):
     return "ok"
 
 
-@app.route('/login')
-def login():
-    return render_template('login.html')
+@app.route('/auth')
+def auth():
+    flow = create_oauth_flow(request)
+    flow.params['approval_prompt'] = 'force'
+    uri = flow.step1_get_authorize_url()
+    # Perform the redirect.
+    return redirect(str(uri))
+
+
+def CreateService(service, version, creds):
+    http = httplib2.Http()
+    creds.authorize(http)
+    return build(service, version, http=http)
+
+
+@app.route('/oauth2callback')
+def oauth2callback():
+    code = request.args.get('code', '')
+    if not code:
+        abort(400)
+
+    oauth_flow = create_oauth_flow(request)
+    # Perform the exchange of the code. If there is a failure with exchanging
+    # the code, return None.
+    try:
+        creds = oauth_flow.step2_exchange(code)
+    except FlowExchangeError:
+        abort(400)
+
+    users_service = util.create_service('oauth2', 'v2', creds)
+    # TODO: Check for errors.
+    guser = users_service.userinfo().get().execute()
+
+    user, created = User.objects.get_or_create(googleId=guser.get('id'))
+    if created:
+        user.email = guser.get('email')
+        user.gender = guser.get('gender') == 'male'
+    user.locale = guser.get('locale')
+
+    try:
+        user.save()
+    except DuplicateKeyError as e:
+        return "Duplicate "+str(e)
+
+    return redirect("/user/"+str(user.pk))
 
 
 if __name__ == '__main__':
