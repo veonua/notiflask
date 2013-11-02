@@ -1,7 +1,7 @@
 import json
 from operator import contains
 
-from flask import render_template, redirect, request, abort
+from flask import render_template, redirect, request, abort, session
 
 from notiflask.gcm import gcm_send_request
 from notiflask.userModel import User, Device
@@ -18,22 +18,27 @@ def init():
 # Views
 @app.route('/')
 def home():
+    if 'userId' in session:
+        return redirect("/user/" + session['userId'])
+
     return render_template('index.html')
 
 
 @app.route('/register_device/<deviceId>', methods=['GET', 'POST'])
 def register_device(deviceId):
     if request.method == 'GET':
-        return render_template("register_device.html", deviceId=deviceId)
+        if 'userId' not in session:
+            return redirect("/auth?deviceId=" + deviceId)
+
+        return render_template("register_device.html", deviceId=deviceId, userName=session['user']['name'])
     if request.method == 'POST':
-        userEmail = request.form['userEmail']
-        if userEmail is None:
-            abort(400)
-        user, created = User.objects.get_or_create(email=userEmail)
-        newDevice = Device(deviceId=deviceId)
-        user.devices.append(newDevice)
+        if 'userId' not in session:
+            abort(403)
+
+        user, created = User.objects.get_or_create(pk=session['userId'])
+        user.devices.append(Device(deviceId=deviceId))
         user.save()
-        return redirect("/user/" + userEmail)
+        return redirect("/")
 
 
 def getUser(uid):

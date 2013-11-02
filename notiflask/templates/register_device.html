@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Register device</title>
+    <title>{{ userName }}: Register device</title>
 </head>
 <body>
     <h1>Register device</h1>
+    <h3>{{ userName }}</h3>
 
     <form method="post">
         <input type="hidden" name="hidden" value="{{ deviceId }}">
-        <label for="userEmail">UserEmail:</label>
-        <input type="email" name="userEmail" id="userEmail">
         <br>
         <input type="submit" value="Register">
     </form>
