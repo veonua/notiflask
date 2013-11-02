@@ -1,9 +1,9 @@
 import json
 from operator import contains
-import httplib2
 from oauth2client.client import FlowExchangeError
 from pymongo.errors import DuplicateKeyError
 from gcm import gcm_send_request
+
 
 from oauth.handler import create_oauth_flow
 from userModel import User, Device
@@ -115,12 +115,6 @@ def auth():
     uri = flow.step1_get_authorize_url()
     # Perform the redirect.
     return redirect(str(uri))
-
-
-def CreateService(service, version, creds):
-    http = httplib2.Http()
-    creds.authorize(http)
-    return build(service, version, http=http)
 
 
 @app.route('/oauth2callback')
