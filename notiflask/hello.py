@@ -25,19 +25,35 @@ def home():
     return render_template('index.html')
 
 
-@app.route('/register_device/<deviceId>', methods=['GET', 'POST'])
-def register_device(deviceId):
+@app.route('/user/remove')
+def remove_device():
+    if 'userId' not in session:
+        abort(403)
+
+    user_id = session['userId']
+    device_id = request.args.get('device')
+
+    User.objects(pk=user_id).update_one(pull__devices={'deviceId': device_id})
+    return redirect("/user/" + user_id)
+
+
+@app.route('/register_device/<device_id>', methods=['GET', 'POST'])
+def register_device(device_id):
     if request.method == 'GET':
         if 'userId' not in session:
             return login()
 
-        return render_template("register_device.html", deviceId=deviceId, userName=session['user']['name'])
+        return render_template("register_device.html", deviceId=device_id, userName=session['user']['name'])
     if request.method == 'POST':
         if 'userId' not in session:
             abort(403)
 
         user, created = User.objects.get_or_create(pk=session['userId'])
-        user.devices.append(Device(deviceId=deviceId))
+
+        model = request.args.get('model')
+        manufacturer = request.args.get('manufacturer')
+
+        user.devices.append(Device(deviceId=device_id, type="Android", model=model, manufacturer=manufacturer))
         user.save()
         return redirect("/")
 
@@ -64,7 +80,7 @@ def send():
     email = request.form['email']
     user = User.objects(email=email).first()
 
-    data = {"message": request.form['message']}
+    data = {"text": request.form['message']}
     res = send_to_user(user, data)
 
     return render_template('send_result.html', res=res)
@@ -77,7 +93,8 @@ def github_hook(uid):
     uri = payload['repository']['url']
 
     user = getUser(uid)
-    data = {'message': name,
+    data = {'title': name,
+            'text': name,
             'uri': uri}
 
     send_to_user(user, data)

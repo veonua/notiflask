@@ -10,10 +10,17 @@
 
     <table>
     {% for device in devices %}
-        <td><tr>{{ device.deviceId }}</tr></td>
-    {% else %}
-        <td><tr>no devices found</tr></td>
-    {% endfor %}
+        <tr>
+            <td>{{ device.type }}</td>
+            <td>{{ device.manufacturer }}</td>
+            <td>{{ device.model }}</td>
+            <td><a href="./remove?device={{ device.deviceId }}">remove</a></td>
+        </tr>
+        {% else %}
+        <tr>
+            <td>no devices found</td>
+        </tr>
+        {% endfor %}
     </table>
     total : {{ devices|length }}
 
