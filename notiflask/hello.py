@@ -80,7 +80,11 @@ def send():
     email = request.form['email']
     user = User.objects(email=email).first()
 
-    data = {"text": request.form['message']}
+    data = {
+        "title": request.form['title'],
+        "text": request.form['text'],
+        "canonicalUrl": request.form['canonicalUrl']
+    }
     res = send_to_user(user, data)
 
     return render_template('send_result.html', res=res)
@@ -95,7 +99,7 @@ def github_hook(uid):
     user = getUser(uid)
     data = {'title': name,
             'text': name,
-            'uri': uri}
+            'canonicalUrl': uri}
 
     send_to_user(user, data)
     return "ok"

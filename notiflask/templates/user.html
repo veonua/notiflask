@@ -28,8 +28,14 @@
 
     <form method="post" action="/send">
         <input type="hidden" name="email" value="{{ email }}">
-        <label for="message">message:</label>
-        <input type="text" name="message" id="message">
+        <label for="title">title:</label>
+        <input type="text" name="title" id="title">
+
+        <label for="text">message:</label>
+        <input type="text" name="text" id="text">
+        <br>
+        <label for="canonicalUrl">url:</label>
+        <input type="url" name="canonicalUrl" id="canonicalUrl">
         <br>
         <input type="submit" value="Send">
     </form>
