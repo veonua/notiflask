@@ -1,43 +1,47 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>User {{ email }}</title>
-</head>
-<body>
-<a href="/logout">Log out</a>
+{% extends "base.html" %}
+{% block content %}
+<h2>User {{ email }}</h2>
 
-<h1>User {{ email }}</h1>
+<div class="row">
+    <div class="col-sm-4">
+        <h4>Devices
+            <small>#{{ devices|length }}</small>
+        </h4>
+        <div class="list-group">
+            {% for device in devices %}
+            <span class="list-group-item">
+                <h4 class="list-group-item-heading">{{ device.model }}
+                    <small>{{ device.manufacturer }}</small>
+                </h4>
+                <p class="list-group-item-text">{{ device.type }} <a
+                        href="./remove?device={{ device.deviceId }}">remove</a></p>
+            </span>
+            {% else %}
+            <span class="list-group-item">
+                <h4 class="list-group-item-heading">no devices found</h4>
+            </span>
+            {% endfor %}
+        </div>
+    </div>
 
-    <table>
-    {% for device in devices %}
-        <tr>
-            <td>{{ device.type }}</td>
-            <td>{{ device.manufacturer }}</td>
-            <td>{{ device.model }}</td>
-            <td><a href="./remove?device={{ device.deviceId }}">remove</a></td>
-        </tr>
-        {% else %}
-        <tr>
-            <td>no devices found</td>
-        </tr>
-        {% endfor %}
-    </table>
-    total : {{ devices|length }}
+    <div class="col-sm-4">
+        <h4>Send Message</h4>
 
-    <h1>Send Message</h1>
+        <form method="post" action="/send">
+            <input type="hidden" name="email" value="{{ email }}" class="form-control">
 
-    <form method="post" action="/send">
-        <input type="hidden" name="email" value="{{ email }}">
-        <label for="title">title:</label>
-        <input type="text" name="title" id="title">
+            <div class="form-group">
+                <input type="text" name="title" id="title" placeholder="title" class="form-control">
+            </div>
+            <div class="form-group">
+                <input type="text" name="text" id="text" placeholder="message" class="form-control">
+            </div>
+            <div class="form-group">
+                <input type="url" name="canonicalUrl" id="canonicalUrl" placeholder="url" class="form-control">
+            </div>
+            <input type="submit" class="btn btn-default" value="Send">
+        </form>
+    </div>
+</div>
 
-        <label for="text">message:</label>
-        <input type="text" name="text" id="text">
-        <br>
-        <label for="canonicalUrl">url:</label>
-        <input type="url" name="canonicalUrl" id="canonicalUrl">
-        <br>
-        <input type="submit" value="Send">
-    </form>
-</body>
-</html>
+{% endblock %}
