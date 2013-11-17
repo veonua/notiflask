@@ -1,5 +1,9 @@
 {% extends "base.html" %}
+{% block head_ext %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-datetimepicker.min.css') }}">
+{% endblock %}
 {% block content %}
+
 <h2>User {{ email }}</h2>
 
 <div class="row">
@@ -34,14 +38,69 @@
                 <input type="text" name="title" id="title" placeholder="title" class="form-control">
             </div>
             <div class="form-group">
-                <input type="text" name="text" id="text" placeholder="message" class="form-control">
+                <input type="text" name="text" id="text" placeholder="message" class="form-control" required>
             </div>
             <div class="form-group">
                 <input type="url" name="canonicalUrl" id="canonicalUrl" placeholder="url" class="form-control">
             </div>
-            <input type="submit" class="btn btn-default" value="Send">
+
+            <div class="form-group">
+                <label class="control-label" for="inputAddress">Date time</label>
+
+                <div class='input-group date' id='datetimepicker1'>
+                    <input type='text' class="form-control"/>
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label" for="inputAddress">Address</label>
+
+                <div class="controls">
+                    <input type="text" autocomplete="off" class="inputAddress form-control" id="inputAddress"
+                           placeholder="Type in your address">
+                </div>
+            </div>
+
+            <input id="lat" type="hidden"> <br/>
+            <input id="lng" type="hidden"> <br/>
+
+            <button type="submit" class="btn btn-default">
+                <span class="glyphicon glyphicon-send"></span>
+                Send
+            </button>
         </form>
     </div>
 </div>
+
+{% endblock %}
+
+{% block js_footer_ext %}
+<script src="//maps.google.com/maps/api/js?sensor=false"></script>
+<script src="{{ url_for('static', filename='js/jquery.addressPicker.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap-typeahead.js') }}"></script>
+
+
+<script type="text/javascript">
+  $(function() {
+    $('#datetimepicker1').datetimepicker({
+      startDate: new Date(),
+      language: 'en'
+    });
+
+  $('#inputAddress').addressPicker({
+		  boundElements: {
+		    '#lat': 'lat',
+		    '#lng': 'lng',
+		  }
+		});
+
+    });
+
+</script>
+
+<script src="{{ url_for('static', filename='js/moment.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap-datetimepicker.js') }}"></script>
 
 {% endblock %}

@@ -1,16 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ userName }}: Register device</title>
-</head>
-<body>
-    <h1>Register device</h1>
-    <h3>{{ userName }}</h3>
+{% extends "base.html" %}
+{% block title %}Register device{% endblock %}
+{% block content %}
+<h3>{{ userName }}</h3>
 
     <form method="post">
         <input type="hidden" name="hidden" value="{{ deviceId }}">
         <br>
-        <input type="submit" value="Register">
+        <input type="submit" class="btn btn-primary btn-lg" role="button" value="Register">
     </form>
-</body>
-</html>
+{% endblock %}

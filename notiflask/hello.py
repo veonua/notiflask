@@ -1,9 +1,9 @@
 import json
 from operator import contains
 
-from flask import render_template, redirect, request, abort, session
+from flask import render_template, redirect, request, abort, session, jsonify, Response, send_from_directory
 
-from notiflask.gcm import gcm_send_request, send_to_user
+from notiflask.gcm import send_to_user
 from notiflask.oauth.handler import login
 from notiflask.userModel import User, Device
 from flask.ext.mongoengine import MongoEngine
@@ -87,7 +87,7 @@ def send():
     }
     res = send_to_user(user, data)
 
-    return render_template('send_result.html', res=res)
+    return jsonify(res)
 
 
 @app.route('/github/<uid>', methods=['POST'])
@@ -102,7 +102,7 @@ def github_hook(uid):
             'canonicalUrl': uri}
 
     send_to_user(user, data)
-    return "ok"
+    return Response(status=204)
 
 
 if __name__ == '__main__':
