@@ -1,13 +1,16 @@
+from datetime import datetime
 import json
 from operator import contains
 
-from flask import render_template, redirect, request, abort, session, jsonify, Response, send_from_directory
+from flask import render_template, redirect, request, abort, session, jsonify, Response
+from wtforms.ext import dateutil
 
 from notiflask.gcm import send_to_user
 from notiflask.oauth.handler import login
 from notiflask.userModel import User, Device
 from flask.ext.mongoengine import MongoEngine
 from notiflask import app
+import iso8601
 
 
 @app.before_first_request
@@ -81,10 +84,24 @@ def send():
     user = User.objects(email=email).first()
 
     data = {
-        "title": request.form['title'],
         "text": request.form['text'],
-        "canonicalUrl": request.form['canonicalUrl']
     }
+
+    if request.form['canonicalUrl']:
+        data["canonicalUrl"] = request.form['canonicalUrl']
+    if request.form['title']:
+        data["title"] = request.form['title']
+    if request.form['address']:
+        data['location'] = {
+            "latitude": request.form['lat'],
+            "longitude": request.form['lng'],
+            "address": request.form['address'],
+            "displayName": request.form['address']
+        }
+    if request.form['datetime']:
+        #dt = iso8601.parse_date(request.form['datetime'])
+        data['displayTime'] = request.form['datetime']
+
     res = send_to_user(user, data)
 
     return jsonify(res)

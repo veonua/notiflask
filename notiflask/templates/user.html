@@ -45,26 +45,26 @@
             </div>
 
             <div class="form-group">
-                <label class="control-label" for="inputAddress">Date time</label>
-
-                <div class='input-group date' id='datetimepicker1'>
+                <label class="control-label" for="inputAddress">Choose date and time</label>
+                <div class='input-group date' id='datetimepicker'>
                     <input type='text' class="form-control"/>
+                    <input type="hidden" name="datetime" id='datetimefield'>
                     <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
                     </span>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="control-label" for="inputAddress">Address</label>
+                <label class="control-label" for="inputAddress">or provide location</label>
 
                 <div class="controls">
-                    <input type="text" autocomplete="off" class="inputAddress form-control" id="inputAddress"
-                           placeholder="Type in your address">
+                    <input type="text" name="address" autocomplete="off" class="inputAddress form-control" id="inputAddress"
+                           placeholder="Type in address">
                 </div>
             </div>
 
-            <input id="lat" type="hidden"> <br/>
-            <input id="lng" type="hidden"> <br/>
+            <input id="lat" name="lat" type="hidden"> <br/>
+            <input id="lng" name="lng" type="hidden"> <br/>
 
             <button type="submit" class="btn btn-default">
                 <span class="glyphicon glyphicon-send"></span>
@@ -84,9 +84,13 @@
 
 <script type="text/javascript">
   $(function() {
-    $('#datetimepicker1').datetimepicker({
+    $('#datetimepicker').datetimepicker({
       startDate: new Date(),
       language: 'en'
+    });
+
+    $("#datetimepicker").on("change.dp",function (e) {
+		$("#datetimefield").val(e.date.toISOString());
     });
 
   $('#inputAddress').addressPicker({
@@ -95,8 +99,8 @@
 		    '#lng': 'lng',
 		  }
 		});
-
     });
+
 
 </script>
 
