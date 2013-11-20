@@ -112,10 +112,19 @@ def github_hook(uid):
     payload = json.loads(request.form['payload'])
     name = payload['pusher']['name'] + "(" + payload['pusher']['email'] + ")"
     uri = payload['repository']['url']
+    reponame = payload['repository']['name']
+    commits = payload['commits']
+    cnum = len(commits)
+    if cnum == 1:
+        text = commits[0]["message"]
+    else:
+        text = str(cnum) + " commits"
+
+    branch = payload['ref']
 
     user = getUser(uid)
     data = {'title': name,
-            'text': name,
+            'text': text + " in "+branch+" "+reponame,
             'canonicalUrl': uri}
 
     send_to_user(user, data)
