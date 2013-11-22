@@ -7,6 +7,7 @@
 <h2>User {{ email }}</h2>
 
 <div class="row">
+    {% if own %}
     <div class="col-sm-4">
         <h4>Devices
             <small>#{{ devices|length }}</small>
@@ -27,6 +28,7 @@
             {% endfor %}
         </div>
     </div>
+    {% endif %}
 
     <div class="col-sm-4">
         <h4>Send Message</h4>

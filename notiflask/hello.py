@@ -72,7 +72,7 @@ def get_user(uid):
     if user is None:
         abort(404)
 
-    return render_template("user.html", email=user.email, devices=user.devices)
+    return render_template("user.html", own=(str(user.pk) == session.get('userId')), email=user.email, devices=user.devices)
 
 
 @app.route('/send', methods=['POST'])
@@ -121,7 +121,7 @@ def github_hook(uid):
 
     user = getUser(uid)
     data = {'title': name,
-            'text': text + " in "+branch+" "+reponame,
+            'text': text + " in " + branch + " " + reponame,
             'canonicalUrl': uri}
 
     send_to_user(user, data)
