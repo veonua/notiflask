@@ -7,7 +7,8 @@ from notiflask.gcm import send_to_user
 from notiflask.oauth.handler import login
 from notiflask.userModel import User, Device
 from flask.ext.mongoengine import MongoEngine
-from notiflask import app
+from notiflask import app, mail
+from flask_mail import Message
 
 
 @app.before_first_request
@@ -23,6 +24,34 @@ def home():
         return redirect("/user/" + session['userId'])
 
     return render_template('index.html')
+
+
+@app.route('/user/invite', methods=['GET', 'POST'])
+def invite_user():
+    email = request.form['email']
+    invitation_url = "http://secret-beach.herokuapp.com/invitation/" + email
+    android_url = "https://play.google.com/store/apps/details?id=com.veon.notify&feature=invitation_email"
+
+    msg = Message("Invitation to the notify",
+                  sender="veon.ua@gmail.com",
+                  recipients=[email])
+
+    msg.body = "User sends you invitation to notify, \n" \
+               "Android - " + android_url + "\n" \
+                                            "Web - " + invitation_url
+
+    msg.html = "User sends you invitation to notify, <br>" \
+               "<div style='overflow:hidden; height:70px;'>" \
+               "  <a href='" + android_url + "'>" \
+                                             "     <img style='width: 200px; margin-top: -79px; opacity: 0.5;' " \
+                                             "      src='http://twentyfiveentertainment.com/wp-content/themes/Starkers/images/googleplay.png'" \
+                                             "      alt='Andorid'>" \
+                                             "  </a>" \
+                                             "</div>" \
+                                             "<a href='" + invitation_url + "'>Web</a>"
+
+    mail.send(msg)
+    return redirect("/")
 
 
 @app.route('/user/remove')
@@ -53,8 +82,11 @@ def register_device(device_id):
         model = request.args.get('model')
         manufacturer = request.args.get('manufacturer')
 
-        user.devices.append(Device(deviceId=device_id, type="Android", model=model, manufacturer=manufacturer))
-        user.save()
+        hasDevice = any(d['deviceId'] == device_id for d in user.devices)
+
+        if not hasDevice:
+            user.devices.append(Device(deviceId=device_id, type="Android", model=model, manufacturer=manufacturer))
+            user.save()
         return redirect("/")
 
 
@@ -70,9 +102,10 @@ def get_user(uid):
     user = getUser(uid)
 
     if user is None:
-        abort(404)
+        return render_template("user404.html", email=uid)
 
-    return render_template("user.html", own=(str(user.pk) == session.get('userId')), email=user.email, devices=user.devices)
+    return render_template("user.html", own=(str(user.pk) == session.get('userId')), email=user.email,
+                           devices=user.devices)
 
 
 @app.route('/send', methods=['POST'])
@@ -98,6 +131,14 @@ def send():
     if request.form['datetime']:
         #dt = iso8601.parse_date(request.form['datetime'])
         data['displayTime'] = request.form['datetime']
+
+    data['menuItems'] = []
+    data['menuItems'].append({
+        "id": "uid",
+        "payload": "http://ya.ru",
+        "action": "OPEN_URI",
+        "displayName": "action1",
+    })
 
     res = send_to_user(user, data)
 
