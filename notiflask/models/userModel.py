@@ -21,7 +21,7 @@ class User(Document):
     meta = {
         'indexes': [
             {'fields': ['googleId'], 'sparse': True, 'unique': True},
-            {'fields': ['email'],    'sparse': True, 'unique': True}
+            {'fields': ['email'], 'sparse': True, 'unique': True}
         ]
     }
 

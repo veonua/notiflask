@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Invitation{% endblock %}
+{% block content %}
+<h3>Hello {{ name }}</h3>
+
+<p><a href="/auth?key={{ key }}" class="btn btn-primary btn-lg" role="button">Sign in with Google</a></p>
+
+And start using app <br>
+
+<a href="https://play.google.com/store/apps/details?id=com.veon.notify&feature=invitation_email">
+    <img src="http://thedeadline.biz/App/Android.png" border="0" alt="Android App" width="200" height="75">
+</a>
+{% endblock %}

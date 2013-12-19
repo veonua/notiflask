@@ -5,8 +5,9 @@ from oauth2client.client import FlowExchangeError, flow_from_clientsecrets
 from pymongo.errors import DuplicateKeyError
 from flask import redirect, request, abort, session
 from notiflask import util, app
+from notiflask.models.invitationModel import Invitation
 
-from notiflask.userModel import User
+from notiflask.models.userModel import User
 from flask.ext.mongoengine import MongoEngine
 
 
@@ -31,7 +32,10 @@ def login():
 @app.route('/auth')
 def auth():
     flow = create_oauth_flow()
-    if request.args.get('referrer', None) is not None:
+    key = request.args.get('key', None)
+    if key is not None:
+        Invitation.objects(pk=key).delete()
+    elif request.args.get('referrer', None) is not None:
         flow.params['state'] = request.args.get('referrer', None)
     elif request.referrer is not None:
         parsed = urlparse(request.referrer)

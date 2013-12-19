@@ -2,13 +2,14 @@ import json
 from operator import contains
 
 from flask import render_template, redirect, request, abort, session, jsonify, Response
+from flask_mail import Message
 
 from notiflask.gcm import send_to_user
+from notiflask.models.invitationModel import Invitation
+from notiflask.models.userModel import User, Device
 from notiflask.oauth.handler import login
-from notiflask.userModel import User, Device
 from flask.ext.mongoengine import MongoEngine
 from notiflask import app, mail
-from flask_mail import Message
 
 
 @app.before_first_request
@@ -26,29 +27,40 @@ def home():
     return render_template('index.html')
 
 
+@app.route('/invite/<uid>')
+def invitation(uid):
+    invite = Invitation.objects(pk=uid).first()
+    if invite is None:
+        abort(403)
+
+    return render_template("invite.html", key=invite.pk, email=invite.email, name=invite.name)
+
+
 @app.route('/user/invite', methods=['GET', 'POST'])
 def invite_user():
     email = request.form['email']
-    invitation_url = "http://secret-beach.herokuapp.com/invitation/" + email
+    invitation, created = Invitation.objects.get_or_create(email=email)
+    invitation.name = request.form['name']
+    invitation.save()
+
+    invitation_url = "http://secret-beach.herokuapp.com/invite/" + str(invitation.pk)
     android_url = "https://play.google.com/store/apps/details?id=com.veon.notify&feature=invitation_email"
 
     msg = Message("Invitation to the notify",
                   sender="veon.ua@gmail.com",
                   recipients=[email])
 
-    msg.body = "User sends you invitation to notify, \n" \
-               "Android - " + android_url + "\n" \
+    msg.body = "Hello " + invitation.name + ", " \
+                                            "Notify user sends you invitation, \n" \
+                                            "Android - " + android_url + "\n" \
                                             "Web - " + invitation_url
 
-    msg.html = "User sends you invitation to notify, <br>" \
-               "<div style='overflow:hidden; height:70px;'>" \
-               "  <a href='" + android_url + "'>" \
-                                             "     <img style='width: 200px; margin-top: -79px; opacity: 0.5;' " \
-                                             "      src='http://twentyfiveentertainment.com/wp-content/themes/Starkers/images/googleplay.png'" \
-                                             "      alt='Andorid'>" \
-                                             "  </a>" \
-                                             "</div>" \
-                                             "<a href='" + invitation_url + "'>Web</a>"
+    msg.html = """Hello """ + invitation.name + """, Notify user sends you invitation, <br>
+               <a href='""" + android_url + """'>
+               <img src="http://thedeadline.biz/App/Android.png" border="0" alt="Android App" width="200" height="75">
+               </a>
+               <br>
+               <a href='""" + invitation_url + """'>Web</a>"""
 
     mail.send(msg)
     return redirect("/")
