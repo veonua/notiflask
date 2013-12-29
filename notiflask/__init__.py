@@ -1,11 +1,12 @@
-from flask_mail import Mail
 from flask_mongoengine import MongoEngine
 from flask import Flask
 from flask_mail import Mail
+from flask_restful import Resource, Api
 
 __author__ = 'Veon'
 
 app = Flask(__name__)
+api = Api(app)
 
 app.config['DEBUG'] = True
 app.config['SECRET_KEY'] = 'super-secret'
@@ -37,4 +38,5 @@ mail = Mail(app)
 ADMINS = ['veon.ua@gmail.com']
 
 import hello
+import api
 import oauth.handler

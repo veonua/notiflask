@@ -1,0 +1,57 @@
+from flask_restful import Resource, reqparse
+from notiflask import api
+from notiflask.gcm import send_to_user
+from notiflask.models.userModel import User
+
+__author__ = 'Veon'
+
+
+class SendResource(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('email', type=str)
+        parser.add_argument('text', type=str)
+        parser.add_argument('canonicalUrl', type=str)
+        parser.add_argument('title', type=str)
+        parser.add_argument('address', type=str, required=False)
+        parser.add_argument('lat', type=float, required=False, ignore=True)
+        parser.add_argument('lon', type=float, required=False, ignore=True)
+        parser.add_argument('datetime', type=str, required=False)
+
+        args = parser.parse_args()
+
+        email = args['email']
+        user = User.objects(email=email).first()
+
+        data = {
+            "text": args['text'],
+        }
+
+        if args.get('canonicalUrl'):
+            data["canonicalUrl"] = args['canonicalUrl']
+        if args.get('title'):
+            data["title"] = args['title']
+        if args.get('address'):
+            data['location'] = {
+                "latitude": args['lat'],
+                "longitude": args['lng'],
+                "address": args['address'],
+                "displayName": args['address']
+            }
+        if args.get('datetime'):
+            #dt = iso8601.parse_date(request.form['datetime'])
+            data['displayTime'] = args['datetime']
+
+        data['menuItems'] = []
+        data['menuItems'].append({
+            "id": "uid",
+            "payload": "http://ya.ru",
+            "action": "OPEN_URI",
+            "displayName": "action1",
+        })
+
+        res = send_to_user(user, data)
+        return res
+
+
+api.add_resource(SendResource, '/api/v1/send')
