@@ -129,18 +129,18 @@ def send():
         "text": request.form['text'],
     }
 
-    if request.form['canonicalUrl']:
+    if request.form.get('canonicalUrl'):
         data["canonicalUrl"] = request.form['canonicalUrl']
-    if request.form['title']:
+    if request.form.get('title'):
         data["title"] = request.form['title']
-    if request.form['address']:
+    if request.form.get('address'):
         data['location'] = {
             "latitude": request.form['lat'],
             "longitude": request.form['lng'],
             "address": request.form['address'],
             "displayName": request.form['address']
         }
-    if request.form['datetime']:
+    if request.form.get('datetime'):
         #dt = iso8601.parse_date(request.form['datetime'])
         data['displayTime'] = request.form['datetime']
 

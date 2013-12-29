@@ -47,9 +47,12 @@
             </div>
 
             <div class="form-group">
-                <label class="control-label" for="inputAddress">Choose date and time</label>
+                <label class="control-label" for="inputDate">
+                    <span class="glyphicon glyphicon-time"></span>
+                    when</label>
+
                 <div class='input-group date' id='datetimepicker'>
-                    <input type='text' class="form-control"/>
+                    <input type='text' class="form-control" id="inputDate" placeholder="Now"/>
                     <input type="hidden" name="datetime" id='datetimefield'>
                     <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
                     </span>
@@ -57,7 +60,9 @@
             </div>
 
             <div class="form-group">
-                <label class="control-label" for="inputAddress">or provide location</label>
+                <label class="control-label" for="inputAddress">
+                    or <span class="glyphicon glyphicon-map-marker"></span>
+                    where</label>
 
                 <div class="controls">
                     <input type="text" name="address" autocomplete="off" class="inputAddress form-control" id="inputAddress"
@@ -107,6 +112,7 @@
 </script>
 
 <script src="{{ url_for('static', filename='js/moment.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap-datetimepicker.js') }}"></script>
 <script src="{{ url_for('static', filename='js/bootstrap-datetimepicker.js') }}"></script>
 
 {% endblock %}
