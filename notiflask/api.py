@@ -20,7 +20,7 @@ class SendResource(Resource):
 
         args = parser.parse_args()
 
-        email = args['email']
+        email = args['email'].lower()
         user = User.objects(email=email).first()
 
         data = {
@@ -54,4 +54,4 @@ class SendResource(Resource):
         return res
 
 
-api.add_resource(SendResource, '/api/v1/send')
+api.add_resource(SendResource, '/api/v1/send', '/send')

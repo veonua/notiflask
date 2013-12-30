@@ -1,7 +1,7 @@
 from flask_mongoengine import MongoEngine
 from flask import Flask
 from flask_mail import Mail
-from flask_restful import Resource, Api
+from flask_restful import Api
 
 __author__ = 'Veon'
 

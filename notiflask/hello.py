@@ -33,12 +33,12 @@ def invitation(uid):
     if invite is None:
         abort(403)
 
-    return render_template("invite.html", key=invite.pk, email=invite.email, name=invite.name)
+    return render_template("invite.html", key=invite.pk, email=invite.email.lower(), name=invite.name)
 
 
 @app.route('/user/invite', methods=['GET', 'POST'])
 def invite_user():
-    email = request.form['email']
+    email = request.form['email'].lower()
     invitation, created = Invitation.objects.get_or_create(email=email)
     invitation.name = request.form['name']
     invitation.save()
@@ -104,7 +104,7 @@ def register_device(device_id):
 
 def getUser(uid):
     if contains(uid, "@"):
-        return User.objects(email=uid).first()
+        return User.objects(email=uid.lower()).first()
     else:
         return User.objects(pk=uid).first()
 
@@ -116,45 +116,45 @@ def get_user(uid):
     if user is None:
         return render_template("user404.html", email=uid)
 
-    return render_template("user.html", own=(str(user.pk) == session.get('userId')), email=user.email,
+    return render_template("user.html", own=(str(user.pk) == session.get('userId')), email=user.email.lower(),
                            devices=user.devices)
 
 
-@app.route('/send', methods=['POST'])
-def send():
-    email = request.form['email']
-    user = User.objects(email=email).first()
-
-    data = {
-        "text": request.form['text'],
-    }
-
-    if request.form.get('canonicalUrl'):
-        data["canonicalUrl"] = request.form['canonicalUrl']
-    if request.form.get('title'):
-        data["title"] = request.form['title']
-    if request.form.get('address'):
-        data['location'] = {
-            "latitude": request.form['lat'],
-            "longitude": request.form['lng'],
-            "address": request.form['address'],
-            "displayName": request.form['address']
-        }
-    if request.form.get('datetime'):
-        #dt = iso8601.parse_date(request.form['datetime'])
-        data['displayTime'] = request.form['datetime']
-
-    data['menuItems'] = []
-    data['menuItems'].append({
-        "id": "uid",
-        "payload": "http://ya.ru",
-        "action": "OPEN_URI",
-        "displayName": "action1",
-    })
-
-    res = send_to_user(user, data)
-
-    return jsonify(res)
+# @app.route('/send', methods=['POST'])
+# def send():
+#     email = request.form['email']
+#     user = User.objects(email=email).first()
+#
+#     data = {
+#         "text": request.form['text'],
+#     }
+#
+#     if request.form.get('canonicalUrl'):
+#         data["canonicalUrl"] = request.form['canonicalUrl']
+#     if request.form.get('title'):
+#         data["title"] = request.form['title']
+#     if request.form.get('address'):
+#         data['location'] = {
+#             "latitude": request.form['lat'],
+#             "longitude": request.form['lng'],
+#             "address": request.form['address'],
+#             "displayName": request.form['address']
+#         }
+#     if request.form.get('datetime'):
+#         #dt = iso8601.parse_date(request.form['datetime'])
+#         data['displayTime'] = request.form['datetime']
+#
+#     data['menuItems'] = []
+#     data['menuItems'].append({
+#         "id": "uid",
+#         "payload": "http://ya.ru",
+#         "action": "OPEN_URI",
+#         "displayName": "action1",
+#     })
+#
+#     res = send_to_user(user, data)
+#
+#     return jsonify(res)
 
 
 @app.route('/github/<uid>', methods=['POST'])
