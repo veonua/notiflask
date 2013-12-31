@@ -32,8 +32,8 @@ def send_invitation(sender, email, name, data):
     msg.html = "Hello " + sname + ", Friend Reminder user sends you an invitation,"
 
     if data is not None:
-        msg.body += "\n " + data["text"] + "  " + data["title"]
-        msg.html += "<br> <h3>" + data["text"] + "</h3>  <p>" + data["title"]
+        msg.body += "\n " + data["title"] + "  " + data["text"]
+        msg.html += "<br> <h3>" + data["title"] + "</h3>  <p>" + data["text"]
 
         url = data.get('canonicalUrl')
         if url is not None:
