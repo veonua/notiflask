@@ -3,6 +3,7 @@ from notiflask import api
 from notiflask.gcm import send_to_user
 from notiflask.models.invitationModel import Invitation
 from notiflask.models.userModel import User
+from notiflask.utils import send
 
 __author__ = 'Veon'
 
@@ -22,7 +23,6 @@ class SendResource(Resource):
         args = parser.parse_args()
 
         email = args['email'].lower()
-        user = User.objects(email=email).first()
 
         data = {
             "text": args['text'],
@@ -51,7 +51,7 @@ class SendResource(Resource):
             "displayName": "action1",
         })
 
-        res = send_to_user(user, data)
+        res = send(email, data)
         return res
 
 

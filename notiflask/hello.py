@@ -10,6 +10,7 @@ from notiflask.models.userModel import User, Device
 from notiflask.oauth.handler import login
 from flask.ext.mongoengine import MongoEngine
 from notiflask import app, mail
+from notiflask.utils import getUser, send_invitation
 
 
 @app.before_first_request
@@ -36,33 +37,13 @@ def invitation(uid):
     return render_template("invite.html", key=invite.pk, email=invite.email.lower(), name=invite.name)
 
 
-@app.route('/user/invite', methods=['GET', 'POST'])
+@app.route('/user/invite', methods=['POST'])
 def invite_user():
     email = request.form['email'].lower()
-    invitation, created = Invitation.objects.get_or_create(email=email)
-    invitation.name = request.form['name']
-    invitation.save()
+    if 'userId' not in session:
+        pass
 
-    invitation_url = "http://secret-beach.herokuapp.com/invite/" + str(invitation.pk)
-    android_url = "https://play.google.com/store/apps/details?id=com.veon.notify&feature=invitation_email"
-
-    msg = Message("Invitation to the notify",
-                  sender="veon.ua@gmail.com",
-                  recipients=[email])
-
-    msg.body = "Hello " + invitation.name + ", " \
-                                            "Notify user sends you invitation, \n" \
-                                            "Android - " + android_url + "\n" \
-                                            "Web - " + invitation_url
-
-    msg.html = """Hello """ + invitation.name + """, Notify user sends you invitation, <br>
-               <a href='""" + android_url + """'>
-               <img src="http://thedeadline.biz/App/Android.png" border="0" alt="Android App" width="200" height="75">
-               </a>
-               <br>
-               <a href='""" + invitation_url + """'>Web</a>"""
-
-    mail.send(msg)
+    send_invitation(None, email, name=request.form['name'])
     return redirect("/")
 
 
@@ -102,13 +83,6 @@ def register_device(device_id):
         return redirect("/")
 
 
-def getUser(uid):
-    if contains(uid, "@"):
-        return User.objects(email=uid.lower()).first()
-    else:
-        return User.objects(pk=uid).first()
-
-
 @app.route('/user/<uid>')
 def get_user(uid):
     user = getUser(uid)
@@ -118,43 +92,6 @@ def get_user(uid):
 
     return render_template("user.html", own=(str(user.pk) == session.get('userId')), email=user.email.lower(),
                            devices=user.devices)
-
-
-# @app.route('/send', methods=['POST'])
-# def send():
-#     email = request.form['email']
-#     user = User.objects(email=email).first()
-#
-#     data = {
-#         "text": request.form['text'],
-#     }
-#
-#     if request.form.get('canonicalUrl'):
-#         data["canonicalUrl"] = request.form['canonicalUrl']
-#     if request.form.get('title'):
-#         data["title"] = request.form['title']
-#     if request.form.get('address'):
-#         data['location'] = {
-#             "latitude": request.form['lat'],
-#             "longitude": request.form['lng'],
-#             "address": request.form['address'],
-#             "displayName": request.form['address']
-#         }
-#     if request.form.get('datetime'):
-#         #dt = iso8601.parse_date(request.form['datetime'])
-#         data['displayTime'] = request.form['datetime']
-#
-#     data['menuItems'] = []
-#     data['menuItems'].append({
-#         "id": "uid",
-#         "payload": "http://ya.ru",
-#         "action": "OPEN_URI",
-#         "displayName": "action1",
-#     })
-#
-#     res = send_to_user(user, data)
-#
-#     return jsonify(res)
 
 
 @app.route('/github/<uid>', methods=['POST'])
@@ -172,12 +109,11 @@ def github_hook(uid):
 
     branch = payload['ref']
 
-    user = getUser(uid)
     data = {'title': name,
             'text': text + " in " + branch + " " + reponame,
             'canonicalUrl': uri}
 
-    send_to_user(user, data)
+    send(user, data)
     return Response(status=204)
 
 
