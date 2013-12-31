@@ -35,9 +35,10 @@ def send_invitation(sender, email, name, data):
         msg.body += "\n " + data["text"] + "  " + data["title"]
         msg.html += "<br> <h3>" + data["text"] + "</h3>  <p>" + data["title"]
 
-        if data['canonicalUrl'] is not None:
-            msg.body += "\n " + data["canonicalUrl"]
-            msg.html += "<a href='" + data["canonicalUrl"] + "'> link </a>"
+        url = data.get('canonicalUrl')
+        if url is not None:
+            msg.body += "\n " + url
+            msg.html += "<a href='" + url + "'> link </a>"
 
         msg.html += "</p>"
 
