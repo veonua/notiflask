@@ -42,12 +42,12 @@ def send_invitation(sender, email, name, data):
 
         msg.html += "</p>"
 
-    msg.body += "\n Start using Friend Reminder Android - " + android_url + "\nWeb - " + invitation_url
-    msg.html += """<br><br>Start using Friend Reminder <a href='""" + android_url + """'>Android app
-           <img src="http://thedeadline.biz/App/Android.png" border="0" alt="Android App" width="200" height="75">
-           </a>
-           <br>
-           <a href='""" + invitation_url + """'>Web</a>"""
+    msg.body += "\n Start using Friend Reminder\nAndroid - " + android_url + "\nWeb - " + invitation_url
+    msg.html += """<br><br>Start using Friend Reminder <br>
+            <a href='""" + android_url + """'>Android app
+            <img src="http://thedeadline.biz/App/Android.png" border="0" alt="Android App" width="200" height="75">
+            </a> <br>
+            <a href='""" + invitation_url + """'>Web</a>"""
 
     mail.send(msg)
     pass
