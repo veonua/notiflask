@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<ul class="nav nav-tabs">
+    <li><a href="./">Users</a></li>
+    <li class="active"><a href="#">Invitations<span class="badge">{{ invitations|count }}</span></a></li>
+</ul>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for invitation in invitations %}
+    <tr id="i_{{ invitation.pk }}">
+        <td>{{ invitation.name }}</td>
+        <td>{{ invitation.email }}</td>
+        <td><a href="#" onclick="remove_invitation('{{ invitation.pk }}')">remove</a></td>
+    </tr>
+    {% else %}
+    <tr>
+        <td>no invitations found</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<ul class="pagination">
+    <li><a href="#">&laquo;</a></li>
+    {% for number in range(invitation|count // 50) %}
+    <li><a href="?page={{ number+1 }}">{{ number+1 }}</a></li>
+    {% endfor %}
+    <li><a href="#">&raquo;</a></li>
+</ul>
+{% endblock %}
+
+{% block js_footer_ext %}
+<script>
+    function remove_invitation(o) {
+        $.ajax({
+            url: '../api/v1/invitation/'+o,
+            type: 'DELETE',
+            success: function(result) {
+                $('#i_'+o).hide(200);
+            }
+        });
+    }
+
+</script>
+{% endblock %}

@@ -39,4 +39,5 @@ ADMINS = ['veon.ua@gmail.com']
 
 import hello
 import api
+import admin
 import oauth.handler

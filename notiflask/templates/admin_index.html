@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#">Users <span class="badge">{{ users|length }}</span></a></li>
+    <li><a href="invitations">Invitations</a></li>
+</ul>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Locale</th>
+        <th>Gender</th>
+        <th>Google Id</th>
+        <th>Email</th>
+        <th>Devices</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in users %}
+    <tr id="i_{{ user.pk }}">
+        <td>{{ user.name }}</td>
+        <td>{{ user.locale }}</td>
+        <td>{{ "M" if user.gender else "F" }}</td>
+        <td>{{ user.googleId }}</td>
+        <td>{{ user.email }}</td>
+        <td class="dropdown" style="text-align: center;">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                {{ user.devices|count }} <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu">
+                {% for device in user.devices %}
+                {#
+                <dt>type</dt>
+                <dl>{{ device.type }}</dl>
+                #}
+                <li>{{ device.manufacturer }}-{{ device.model }}</li>
+                {% endfor %}
+            </ul>
+        </td>
+        <td><a href="#" onclick="remove_user('{{ user.pk }}')">remove</a></td>
+    </tr>
+    {% else %}
+        <span class="list-group-item">
+            <h4 class="list-group-item-heading">no users found</h4>
+        </span>
+    {% endfor %}
+    </tbody>
+</table>
+
+<ul class="pagination">
+    <li><a href="#">&laquo;</a></li>
+    {% for number in range(users|count // 50) %}
+    <li><a href="?page={{ number+1 }}">{{ number+1 }}</a></li>
+    {% endfor %}
+    <li><a href="#">&raquo;</a></li>
+</ul>
+{% endblock %}
+
+{% block js_footer_ext %}
+<script>
+    function remove_user(o) {
+        $.ajax({
+            url: '../api/v1/user/'+o,
+            type: 'DELETE',
+            success: function(result) {
+                $('#i_'+o).hide(200);
+            }
+        });
+    }
+
+</script>
+{% endblock %}

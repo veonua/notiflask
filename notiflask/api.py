@@ -1,6 +1,7 @@
 from flask_restful import Resource, reqparse
 from notiflask import api
 from notiflask.gcm import send_to_user
+from notiflask.models.invitationModel import Invitation
 from notiflask.models.userModel import User
 
 __author__ = 'Veon'
@@ -55,3 +56,29 @@ class SendResource(Resource):
 
 
 api.add_resource(SendResource, '/api/v1/send', '/send')
+
+
+class InvitationResource(Resource):
+    def get(self, key):
+        i = Invitation.objects(pk=key).first()
+        return {"name": i.name, "email": i.email}
+
+    def delete(self, key):
+        Invitation.objects(pk=key).delete()
+        return '', 204
+
+
+api.add_resource(InvitationResource, '/api/v1/invitation/<string:key>')
+
+
+class UserResource(Resource):
+    def get(self, key):
+        i = User.objects(pk=key).first()
+        return {"name": i.name, "email": i.email}
+
+    def delete(self, key):
+        User.objects(pk=key).delete()
+        return '', 204
+
+
+api.add_resource(UserResource, '/api/v1/user/<string:key>')

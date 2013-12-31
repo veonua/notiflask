@@ -34,7 +34,7 @@
         <h4>Send Message</h4>
 
         <form method="post" action="/api/v1/send">
-        <input type="hidden" name="email" value="{{ email }}" class="form-control">
+            <input type="hidden" name="email" value="{{ email }}" class="form-control">
 
             <div class="form-group">
                 <input type="text" name="title" id="title" placeholder="title" class="form-control">
@@ -65,7 +65,8 @@
                     where</label>
 
                 <div class="controls">
-                    <input type="text" name="address" autocomplete="off" class="inputAddress form-control" id="inputAddress"
+                    <input type="text" name="address" autocomplete="off" class="inputAddress form-control"
+                           id="inputAddress"
                            placeholder="Type in address">
                 </div>
             </div>
@@ -109,10 +110,10 @@
     });
 
 
+
 </script>
 
 <script src="{{ url_for('static', filename='js/moment.js') }}"></script>
-<script src="{{ url_for('static', filename='js/bootstrap-datetimepicker.js') }}"></script>
 <script src="{{ url_for('static', filename='js/bootstrap-datetimepicker.js') }}"></script>
 
 {% endblock %}
