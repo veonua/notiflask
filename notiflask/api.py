@@ -1,6 +1,5 @@
 from flask_restful import Resource, reqparse
 from notiflask import api
-from notiflask.gcm import send_to_user
 from notiflask.models.invitationModel import Invitation
 from notiflask.models.userModel import User
 from notiflask.utils import send
@@ -12,10 +11,10 @@ class SendResource(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('email', type=str)
-        parser.add_argument('text', type=str)
+        parser.add_argument('text', type=unicode)
         parser.add_argument('canonicalUrl', type=str, required=False)
-        parser.add_argument('title', type=str, required=False)
-        parser.add_argument('address', type=str, required=False)
+        parser.add_argument('title', type=unicode, required=False)
+        parser.add_argument('address', type=unicode, required=False)
         parser.add_argument('lat', type=float, required=False, ignore=True)
         parser.add_argument('lon', type=float, required=False, ignore=True)
         parser.add_argument('datetime', type=str, required=False)

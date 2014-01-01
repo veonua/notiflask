@@ -1,6 +1,7 @@
 import pickle
 from flask import redirect, session
 from flask_restful import abort
+from oauth2client.client import AccessTokenRefreshError
 from notiflask import app
 from notiflask.models.userModel import Device
 from notiflask.util import create_service, getUser
@@ -19,7 +20,7 @@ class Glass(object):
     @staticmethod
     def send_mirror(user, data):
         if not Glass.has_glass_connected(user):
-            pass
+            return
 
         creds = pickle.loads(user.auth)
 
@@ -27,10 +28,10 @@ class Glass(object):
         body['notification'] = {'level': 'DEFAULT'}
 
         mirror_service = create_service('mirror', 'v1', creds)
-        z = mirror_service.timeline().insert(body=body).execute()
-        if not z:
+        try:
+            return mirror_service.timeline().insert(body=body).execute()
+        except AccessTokenRefreshError, e:
             pass
-        pass
 
 
 @app.route('/user/connect_glass', methods=['POST'])
