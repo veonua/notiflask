@@ -31,6 +31,9 @@ class SendResource(Resource):
             data["canonicalUrl"] = args['canonicalUrl']
         if args.get('title'):
             data["title"] = args['title']
+        else:
+            data["title"] = "Reminder"
+
         if args.get('address'):
             data['location'] = {
                 "latitude": args['lat'],
