@@ -1,16 +1,14 @@
 import json
-from operator import contains
 
-from flask import render_template, redirect, request, abort, session, jsonify, Response
-from flask_mail import Message
+from flask import render_template, redirect, request, abort, session, Response
+from notiflask.glass_utils import Glass
 
-from notiflask.gcm import send_to_user
 from notiflask.models.invitationModel import Invitation
 from notiflask.models.userModel import User, Device
 from notiflask.oauth.handler import login
-from flask.ext.mongoengine import MongoEngine
-from notiflask import app, mail
-from notiflask.utils import getUser, send_invitation
+from notiflask import app
+from notiflask.util import getUser
+from notiflask.utils import send_invitation, send
 
 
 @app.before_first_request
@@ -91,7 +89,7 @@ def get_user(uid):
         return render_template("user404.html", email=uid)
 
     return render_template("user.html", own=(str(user.pk) == session.get('userId')), email=user.email.lower(),
-                           devices=user.devices)
+                           devices=user.devices, glassConnected=Glass.has_glass_connected(user))
 
 
 @app.route('/github/<uid>', methods=['POST'])
@@ -113,7 +111,7 @@ def github_hook(uid):
             'text': text + " in " + branch + " " + reponame,
             'canonicalUrl': uri}
 
-    send(user, data)
+    send(uid, data)
     return Response(status=204)
 
 

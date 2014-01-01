@@ -1,3 +1,4 @@
+import pickle
 import urllib2
 from urlparse import urlparse
 
@@ -77,11 +78,12 @@ def oauth2callback():
         user.gender = guser.get('gender') == 'male'
     user.locale = guser.get('locale')
     user.name = guser.get('name')
+    user.auth = pickle.dumps(creds, 2)
 
     try:
         user.save()
     except DuplicateKeyError as e:
-        return "Duplicate "+str(e)
+        return "Duplicate " + str(e)
 
     session['userId'] = str(user.pk)
     session['user'] = {'name': user.name, 'email': user.email}

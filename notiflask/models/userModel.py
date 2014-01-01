@@ -1,4 +1,4 @@
-from mongoengine import EmbeddedDocument, StringField, Document, ListField, EmbeddedDocumentField, EmailField, BooleanField
+from mongoengine import EmbeddedDocument, StringField, Document, ListField, EmbeddedDocumentField, EmailField, BooleanField, BinaryField
 
 __author__ = 'veon'
 
@@ -17,6 +17,7 @@ class User(Document):
     googleId = StringField()
     email = EmailField()
     devices = ListField(EmbeddedDocumentField(Device))
+    auth = BinaryField()
 
     meta = {
         'indexes': [

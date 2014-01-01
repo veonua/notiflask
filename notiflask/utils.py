@@ -2,17 +2,11 @@ from operator import contains
 from flask_mail import Message
 from notiflask import mail
 from notiflask.gcm import send_to_user
+from notiflask.glass_utils import Glass
 from notiflask.models.invitationModel import Invitation
 from notiflask.models.userModel import User
 
 __author__ = 'Veon'
-
-
-def getUser(uid):
-    if contains(uid, "@"):
-        return User.objects(email=uid.lower()).first()
-    else:
-        return User.objects(pk=uid).first()
 
 
 def send_invitation(sender, email, name, data):
@@ -57,15 +51,14 @@ def send(uid, data):
     if contains(uid, "@"):
         user = User.objects(email=uid.lower()).first()
         if user is not None and len(user.devices) > 0:
+            Glass.send_mirror(user, data)
             return send_to_user(user, data)
         else:
             return send_invitation(None, uid, None, data)
     else:
         user = User.objects(pk=uid).first()
         if user is not None and len(user.devices) > 0:
+            Glass.send_mirror(user, data)
             return send_to_user(user, data)
         else:
             return send_invitation(None, user.email, None, data)
-
-
-

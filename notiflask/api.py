@@ -13,8 +13,8 @@ class SendResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('email', type=str)
         parser.add_argument('text', type=str)
-        parser.add_argument('canonicalUrl', type=str)
-        parser.add_argument('title', type=str)
+        parser.add_argument('canonicalUrl', type=str, required=False)
+        parser.add_argument('title', type=str, required=False)
         parser.add_argument('address', type=str, required=False)
         parser.add_argument('lat', type=float, required=False, ignore=True)
         parser.add_argument('lon', type=float, required=False, ignore=True)
@@ -45,10 +45,8 @@ class SendResource(Resource):
 
         data['menuItems'] = []
         data['menuItems'].append({
-            "id": "uid",
             "payload": "http://ya.ru",
-            "action": "OPEN_URI",
-            "displayName": "action1",
+            "action": "OPEN_URI"
         })
 
         res = send(email, data)

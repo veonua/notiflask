@@ -20,5 +20,5 @@ def gcm_send_request(deviceIds, data):
 
 
 def send_to_user(user, data):
-    dd = [dev.deviceId for dev in user.devices]
+    dd = [dev.deviceId for dev in user.devices if dev.type == "Android"]
     return gcm_send_request(dd, data)

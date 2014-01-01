@@ -13,7 +13,9 @@
 # limitations under the License.
 
 """Utility functions for the Quickstart."""
+from operator import contains
 from notiflask.libs.apiclient.discovery import build
+from notiflask.models.userModel import User
 
 __author__ = 'alainv@google.com (Alain Vongsouvanh)'
 
@@ -27,6 +29,13 @@ def get_full_url(request_handler, path):
     """Return the full url from the provided request handler and path."""
     pr = urlparse(request_handler.request.url)
     return '%s://%s%s' % (pr.scheme, pr.netloc, path)
+
+
+def getUser(uid):
+    if contains(uid, "@"):
+        return User.objects(email=uid.lower()).first()
+    else:
+        return User.objects(pk=uid).first()
 
 
 def load_session_credentials(request_handler):
@@ -80,11 +89,9 @@ def auth_required(handler_method):
                 self.credentials.refresh(httplib2.Http())
                 return handler_method(self, *args)
             except AccessTokenRefreshError:
-                # Access has been revoked.
-                store_userid(self, '')
-                #credentials_entity = Credentials.get_by_key_name(self.userid)
-                #if credentials_entity:
-                #  credentials_entity.delete()
+                # TODO: Access has been revoked.
+                pass
+
         self.redirect('/auth')
 
     return check_auth

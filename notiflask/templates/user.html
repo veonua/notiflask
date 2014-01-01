@@ -7,38 +7,12 @@
 <h2>User {{ email }}</h2>
 
 <div class="row">
-    {% if own %}
-    <div class="col-sm-4">
-        <h4>Devices
-            <small>#{{ devices|length }}</small>
-        </h4>
-        <div class="list-group">
-            {% for device in devices %}
-            <span class="list-group-item">
-                <h4 class="list-group-item-heading">{{ device.model }}
-                    <small>{{ device.manufacturer }}</small>
-                </h4>
-                <p class="list-group-item-text">{{ device.type }} <a
-                        href="./remove?device={{ device.deviceId }}">remove</a></p>
-            </span>
-            {% else %}
-            <span class="list-group-item">
-                <h4 class="list-group-item-heading">no devices found</h4>
-            </span>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-
     <div class="col-sm-4">
         <h4>Send Message</h4>
 
         <form method="post" action="/api/v1/send">
             <input type="hidden" name="email" value="{{ email }}" class="form-control">
 
-            <div class="form-group">
-                <input type="text" name="title" id="title" placeholder="title" class="form-control">
-            </div>
             <div class="form-group">
                 <input type="text" name="text" id="text" placeholder="message" class="form-control" required>
             </div>
@@ -80,6 +54,39 @@
             </button>
         </form>
     </div>
+
+    {% if own %}
+    <div class="col-sm-4">
+        <h4>Devices
+            <small>#{{ devices|length }}</small>
+        </h4>
+
+        <div class="list-group">
+            {% for device in devices %}
+            <span class="list-group-item">
+                <h4 class="list-group-item-heading">
+                    <img src="{{ url_for('static', filename='img/'+device.type+'32.png') }}">
+                    {{ device.model }}
+                    <small>{{ device.manufacturer }}</small>
+                </h4>
+                <p class="list-group-item-text"><a href="./remove?device={{ device.deviceId }}">remove</a></p>
+            </span>
+            {% else %}
+            <span class="list-group-item">
+                <h4 class="list-group-item-heading">no devices found</h4>
+            </span>
+            {% endfor %}
+
+            {% if not glassConnected %}
+            <form method="post" action="connect_glass">
+                <button type="submit" class="btn btn-default">
+                    Add Google Glass
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 {% endblock %}

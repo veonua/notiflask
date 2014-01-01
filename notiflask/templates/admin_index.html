@@ -11,23 +11,27 @@
     <thead>
     <tr>
         <th>Name</th>
+        <th>Email</th>
+        <th>Time</th>
         <th>Locale</th>
         <th>Gender</th>
-        <th>Google Id</th>
-        <th>Email</th>
         <th>Devices</th>
+        <th>Google Id</th>
         <th></th>
     </tr>
     </thead>
     <tbody>
     {% for user in users %}
-    <tr id="i_{{ user.pk }}">
+    <tr id="i_{{ user.id }}">
         <td>{{ user.name }}</td>
+        <td><a href="\user\{{ user.id }}">{{ user.email }}</a></td>
+        <td>{{ user.id.generation_time.strftime('%Y-%m-%d') }}</td>
         <td>{{ user.locale }}</td>
         <td>{{ "M" if user.gender else "F" }}</td>
-        <td>{{ user.googleId }}</td>
-        <td>{{ user.email }}</td>
         <td class="dropdown" style="text-align: center;">
+            {% if user.devices|count<1 %}
+            None
+            {% else %}
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                 {{ user.devices|count }} <span class="caret"></span>
             </a>
@@ -40,7 +44,9 @@
                 <li>{{ device.manufacturer }}-{{ device.model }}</li>
                 {% endfor %}
             </ul>
+            {% endif %}
         </td>
+        <td>{{ user.googleId }}</td>
         <td><a href="#" onclick="remove_user('{{ user.pk }}')">remove</a></td>
     </tr>
     {% else %}

@@ -6,20 +6,22 @@ from notiflask.oauth.handler import login
 
 __author__ = 'Veon'
 
+
+def authorize():
+    if '5274bb0ad7b36f1004e64fee' != session.get('userId'):
+        return login()
+
 # Views
 @app.route('/admin/')
 def admin_users():
-    if 'userId' not in session:
-        return login()
-
+    authorize()
     users = User.objects()
     return render_template("admin_index.html", users=users)
 
 
 @app.route('/admin/invitations')
 def admin_invitations():
-    if 'userId' not in session:
-        return login()
+    authorize()
 
     invitations = Invitation.objects()
     return render_template("admin_invitations.html", invitations=invitations)

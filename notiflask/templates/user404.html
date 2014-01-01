@@ -6,8 +6,8 @@
 </h2>
 
 <div class="row" style="display:none">
-<form method="post" action="invite">
-    <input type="hidden" name="email" value="{{ email }}">
+    <form method="post" action="invite">
+        <input type="hidden" name="email" value="{{ email }}">
 
         <div class="col-lg-6">
             <div class="input-group">
@@ -30,9 +30,6 @@
     <form method="post" action="/api/v1/send">
         <input type="hidden" name="email" value="{{ email }}" class="form-control">
 
-        <div class="form-group">
-            <input type="text" name="title" id="title" placeholder="title" class="form-control">
-        </div>
         <div class="form-group">
             <input type="text" name="text" id="text" placeholder="message" class="form-control" required>
         </div>
@@ -87,6 +84,7 @@
 		  }
 		});
     });
+
 
 
 
