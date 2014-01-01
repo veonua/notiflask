@@ -65,7 +65,7 @@
             {% for device in devices %}
             <span class="list-group-item">
                 <h4 class="list-group-item-heading">
-                    <img src="{{ url_for('static', filename='img/'+device.type+'32.png') }}">
+                    <img src="{{ url_for('static', filename='img/'+device.type.lower()+'32.png') }}">
                     {{ device.model }}
                     <small>{{ device.manufacturer }}</small>
                 </h4>
