@@ -13,9 +13,8 @@ from flask.ext.mongoengine import MongoEngine
 from notiflask.oauth.mstorage import MongoStorage
 from notiflask.util import getUser
 
-
+# 'https://www.googleapis.com/auth/glass.location '
 SCOPES = ('https://www.googleapis.com/auth/glass.timeline '
-          'https://www.googleapis.com/auth/glass.location '
           'https://www.googleapis.com/auth/userinfo.profile '
           'https://www.googleapis.com/auth/userinfo.email ')
 
@@ -44,6 +43,8 @@ def auth():
         parsed = urlparse(request.referrer)
         flow.params['state'] = urllib2.quote(parsed.path)
 
+    flow.params['approval_prompt'] = "force"
+
     uri = flow.step1_get_authorize_url()
     # Perform the redirect.
     return redirect(str(uri))
@@ -55,7 +56,6 @@ def logout():
         user = getUser(session['userId'])
         creds = MongoStorage(user).get()
         http = httplib2.Http()
-        creds.refresh(http)
         creds.revoke(http)
     except Exception as e:
         pass
@@ -76,6 +76,8 @@ def oauth2callback():
     # the code, return None.
     try:
         creds = oauth_flow.step2_exchange(code)
+        if creds.refresh_token is None:
+            abort(400)
     except FlowExchangeError:
         abort(400)
 
