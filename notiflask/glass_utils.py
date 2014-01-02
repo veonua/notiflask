@@ -1,9 +1,9 @@
-import pickle
 from flask import redirect, session
 from flask_restful import abort
 from oauth2client.client import AccessTokenRefreshError
 from notiflask import app
 from notiflask.models.userModel import Device
+from notiflask.oauth.mstorage import MongoStorage
 from notiflask.util import create_service, getUser
 
 __author__ = 'Veon'
@@ -22,7 +22,7 @@ class Glass(object):
         if not Glass.has_glass_connected(user):
             return
 
-        creds = pickle.loads(user.auth)
+        creds = MongoStorage(user).get()
 
         body = data
         body['notification'] = {'level': 'DEFAULT'}

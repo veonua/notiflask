@@ -1,6 +1,6 @@
-import pickle
 import urllib2
 from urlparse import urlparse
+import httplib2
 
 from oauth2client.client import FlowExchangeError, flow_from_clientsecrets
 from pymongo.errors import DuplicateKeyError
@@ -10,6 +10,8 @@ from notiflask.models.invitationModel import Invitation
 
 from notiflask.models.userModel import User
 from flask.ext.mongoengine import MongoEngine
+from notiflask.oauth.mstorage import MongoStorage
+from notiflask.util import getUser
 
 
 SCOPES = ('https://www.googleapis.com/auth/glass.timeline '
@@ -49,6 +51,15 @@ def auth():
 
 @app.route('/logout')
 def logout():
+    try:
+        user = getUser(session['userId'])
+        creds = MongoStorage(user).get()
+        http = httplib2.Http()
+        creds.refresh(http)
+        creds.revoke(http)
+    except Exception as e:
+        pass
+
     session.pop('userId', None)
     session.pop('user', None)
     return redirect("/")
@@ -73,15 +84,17 @@ def oauth2callback():
     guser = users_service.userinfo().get().execute()
 
     user, created = User.objects.get_or_create(googleId=guser.get('id'))
+    storage = MongoStorage(user)
+    creds.set_store(storage)
+
     if created:
         user.email = guser.get('email')
         user.gender = guser.get('gender') == 'male'
     user.locale = guser.get('locale')
     user.name = guser.get('name')
-    user.auth = pickle.dumps(creds, 2)
 
     try:
-        user.save()
+        storage.put(creds)
     except DuplicateKeyError as e:
         return "Duplicate " + str(e)
 
