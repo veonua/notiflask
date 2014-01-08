@@ -1,7 +1,11 @@
+from flask import session
 from flask_restful import Resource, reqparse
 from notiflask import api
+from notiflask.google_id import get_data
 from notiflask.models.invitationModel import Invitation
-from notiflask.models.userModel import User
+from notiflask.models.userModel import User, Device
+from notiflask.oauth.handler import oauth2callback
+from notiflask.util import getUser
 from notiflask.utils import send
 
 __author__ = 'Veon'
@@ -82,3 +86,70 @@ class UserResource(Resource):
 
 
 api.add_resource(UserResource, '/api/v1/user/<string:key>')
+
+
+class LoginResource(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('Google-Token', type=str, location='headers')
+        args = parser.parse_args()
+        data = get_data(args["Google-Token"])
+
+        if data is None:
+            return 'invalid token', 403
+
+        email = data['email']
+        user = User.objects(email=email.lower()).first()
+
+        if user is None or user.auth is None:
+            return 'new user, start permission request', 401
+
+        session['userId'] = str(user.pk)
+        session['user'] = {'name': user.name, 'email': user.email}
+        return "", 204
+
+
+api.add_resource(LoginResource, '/api/v1/login')
+
+
+class SignupResource(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('code', type=str)
+        args = parser.parse_args()
+        code = args["code"]
+
+        oauth2callback(code, False)
+        return "", 204
+
+
+api.add_resource(SignupResource, '/api/v1/oauth_callback')
+
+
+class DeviceResource(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('Google-Token', type=str, location='headers')
+        parser.add_argument('id', type=str)
+        parser.add_argument('model', type=unicode)
+        parser.add_argument('manufacturer', type=unicode)
+        args = parser.parse_args()
+        data = get_data(args["Google-Token"])
+
+        user = getUser(data['email'])
+
+        model = args.get('model')
+        manufacturer = args.get('manufacturer')
+        device_id = args.get('id')
+
+        hasDevice = any(d['deviceId'] == device_id for d in user.devices)
+
+        if not hasDevice:
+            user.devices.append(Device(deviceId=device_id, type="Android", model=model, manufacturer=manufacturer))
+            user.save()
+            return "", 201
+
+        return "", 204
+
+
+api.add_resource(DeviceResource, '/api/v1/device')

@@ -14,16 +14,19 @@ from notiflask.oauth.mstorage import MongoStorage
 from notiflask.util import getUser
 
 # 'https://www.googleapis.com/auth/glass.location '
-SCOPES = ('https://www.googleapis.com/auth/glass.timeline '
-          'https://www.googleapis.com/auth/userinfo.profile '
+# 'https://www.googleapis.com/auth/glass.timeline '
+SCOPES = (
+    'https://www.googleapis.com/auth/userinfo.profile '
           'https://www.googleapis.com/auth/userinfo.email ')
 
 
-def create_oauth_flow():
+def create_oauth_flow(include_redirect=True):
     """Create OAuth2.0 flow controller."""
     flow = flow_from_clientsecrets('client_secrets.json', scope=SCOPES)
-
-    flow.redirect_uri = '%soauth2callback' % request.url_root
+    if include_redirect:
+        flow.redirect_uri = '%soauth2callback' % request.url_root
+    else:
+        flow.redirect_uri = ''
     return flow
 
 
@@ -67,11 +70,20 @@ def logout():
 
 @app.route('/oauth2callback')
 def oauth2callback():
-    code = request.args.get('code', '')
+    code = request.args.get('code')
+    return oauth2callback(code, True)
+
+    state = request.args.get('state', None)
+    if state is None:
+        return redirect("/")
+    return redirect(urllib2.unquote(state))
+
+
+def oauth2callback(code, include_redirect):
     if not code:
         abort(400)
 
-    oauth_flow = create_oauth_flow()
+    oauth_flow = create_oauth_flow(include_redirect)
     # Perform the exchange of the code. If there is a failure with exchanging
     # the code, return None.
     try:
@@ -102,8 +114,3 @@ def oauth2callback():
 
     session['userId'] = str(user.pk)
     session['user'] = {'name': user.name, 'email': user.email}
-
-    state = request.args.get('state', None)
-    if state is None:
-        return redirect("/")
-    return redirect(urllib2.unquote(state))

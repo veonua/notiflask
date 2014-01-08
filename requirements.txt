@@ -9,3 +9,4 @@ mongoengine==0.8.4
 httplib2
 Flask-Mail
 Flask-RESTful
+PyJWT
