@@ -88,7 +88,8 @@ def get_user(uid):
     if user is None:
         return render_template("user404.html", email=uid)
 
-    return render_template("user.html", own=(str(user.pk) == session.get('userId')), email=user.email.lower(),
+    return render_template("user.html", login=not session.get('userId'), own=(str(user.pk) == session.get('userId')),
+                           email=user.email.lower(),
                            devices=user.devices, glassConnected=Glass.has_glass_connected(user))
 
 

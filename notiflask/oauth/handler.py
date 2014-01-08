@@ -17,7 +17,7 @@ from notiflask.util import getUser
 # 'https://www.googleapis.com/auth/glass.timeline '
 SCOPES = (
     'https://www.googleapis.com/auth/userinfo.profile '
-          'https://www.googleapis.com/auth/userinfo.email ')
+    'https://www.googleapis.com/auth/userinfo.email ')
 
 
 def create_oauth_flow(include_redirect=True):
@@ -71,7 +71,7 @@ def logout():
 @app.route('/oauth2callback')
 def oauth2callback():
     code = request.args.get('code')
-    return oauth2callback(code, True)
+    oauth2callback(code, True)
 
     state = request.args.get('state', None)
     if state is None:

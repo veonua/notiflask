@@ -22,11 +22,21 @@ class SendResource(Resource):
         parser.add_argument('lat', type=float, required=False, ignore=True)
         parser.add_argument('lon', type=float, required=False, ignore=True)
         parser.add_argument('datetime', type=str, required=False)
-
         args = parser.parse_args()
 
-        email = args['email'].lower()
+        sender_id = session.get("userId")
+        if not sender_id:
+            parser2 = reqparse.RequestParser()
+            parser2.add_argument('Google-Token', type=str, location='headers')
+            data = get_data(parser2.parse_args()["Google-Token"])
+            sender = User.objects(email=data['email'].lower()).first()
+        else:
+            sender = User.objects(pk=sender_id).first()
 
+        if not sender:
+            return 'invalid user', 403
+
+        email = args['email'].lower()
         data = {
             "text": args['text'],
         }
@@ -36,7 +46,7 @@ class SendResource(Resource):
         if args.get('title'):
             data["title"] = args['title']
         else:
-            data["title"] = "Reminder"
+            data["title"] = sender.name
 
         if args.get('address'):
             data['location'] = {
@@ -49,11 +59,11 @@ class SendResource(Resource):
             #dt = iso8601.parse_date(request.form['datetime'])
             data['displayTime'] = args['datetime']
 
-        data['menuItems'] = []
-        data['menuItems'].append({
-            "payload": "http://ya.ru",
-            "action": "OPEN_URI"
-        })
+        # data['menuItems'] = []
+        # data['menuItems'].append({
+        #     "payload": "http://ya.ru",
+        #     "action": "OPEN_URI"
+        # })
 
         res = send(email, data)
         return res

@@ -1,6 +1,5 @@
 from flask import redirect, session
 from flask_restful import abort
-from oauth2client.client import AccessTokenRefreshError
 from notiflask import app
 from notiflask.models.userModel import Device
 from notiflask.oauth.mstorage import MongoStorage
@@ -22,16 +21,17 @@ class Glass(object):
         if not Glass.has_glass_connected(user):
             return
 
-        creds = MongoStorage(user).get()
-
-        body = data
-        body['notification'] = {'level': 'DEFAULT'}
-
-        mirror_service = create_service('mirror', 'v1', creds)
         try:
+            creds = MongoStorage(user).get()
+
+            body = data
+            body['notification'] = {'level': 'DEFAULT'}
+
+            mirror_service = create_service('mirror', 'v1', creds)
             return mirror_service.timeline().insert(body=body).execute()
-        except AccessTokenRefreshError, e:
-            pass
+
+        except Exception, e:
+            print "Error sending mirror: %s" % e.message
 
 
 @app.route('/user/connect_glass', methods=['POST'])
