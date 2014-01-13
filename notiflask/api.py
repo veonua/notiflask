@@ -21,9 +21,9 @@ class SendResource(Resource):
         parser.add_argument('title', type=unicode, required=False)
         parser.add_argument('address', type=unicode, required=False)
         parser.add_argument('showConfirmation', type=boolean, default=False)
-        parser.add_argument('lat', type=float, required=False, ignore=True)
-        parser.add_argument('lon', type=float, required=False, ignore=True)
-        parser.add_argument('datetime', type=str, required=False)
+        parser.add_argument('latitude', type=float, required=False, ignore=True)
+        parser.add_argument('longitude', type=float, required=False, ignore=True)
+        parser.add_argument('displayTime', type=str, required=False)
         args = parser.parse_args()
 
         sender_id = session.get("userId")
@@ -52,14 +52,14 @@ class SendResource(Resource):
 
         if args.get('address'):
             data['location'] = {
-                "latitude": args['lat'],
-                "longitude": args['lng'],
+                "latitude": args['latitude'],
+                "longitude": args['longitude'],
                 "address": args['address'],
                 "displayName": args['address']
             }
-        if args.get('datetime'):
+        if args.get('displayTime'):
             #dt = iso8601.parse_date(request.form['datetime'])
-            data['displayTime'] = args['datetime']
+            data['displayTime'] = args['displayTime']
 
         if args['showConfirmation']:
             data['showConfirmation'] = True

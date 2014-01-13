@@ -28,7 +28,7 @@
 
                 <div class='input-group date' id='datetimepicker'>
                     <input type='text' class="form-control" id="inputDate" placeholder="Now"/>
-                    <input type="hidden" name="datetime" id='datetimefield'>
+                    <input type="hidden" name="displayTime" id='datetimefield'>
                     <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
                     </span>
                 </div>
@@ -53,8 +53,8 @@
                 </label>
             </div>
 
-            <input id="lat" name="lat" type="hidden"> <br/>
-            <input id="lng" name="lng" type="hidden"> <br/>
+            <input id="latitude" name="latitude" type="hidden"> <br/>
+            <input id="longitude" name="longitude" type="hidden"> <br/>
 
             {% if login %}
             <a href="/auth" type="submit" class="btn btn-default">
@@ -125,8 +125,8 @@
 
   $('#inputAddress').addressPicker({
 		  boundElements: {
-		    '#lat': 'lat',
-		    '#lng': 'lng',
+		    '#latitude': 'lat',
+		    '#longitude': 'lng',
 		  }
 		});
     });
