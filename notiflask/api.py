@@ -1,5 +1,6 @@
 from flask import session
 from flask_restful import Resource, reqparse
+from flask_restful.types import boolean
 from notiflask import api
 from notiflask.google_id import get_data
 from notiflask.models.invitationModel import Invitation
@@ -19,6 +20,7 @@ class SendResource(Resource):
         parser.add_argument('canonicalUrl', type=str, required=False)
         parser.add_argument('title', type=unicode, required=False)
         parser.add_argument('address', type=unicode, required=False)
+        parser.add_argument('showConfirmation', type=boolean, default=False)
         parser.add_argument('lat', type=float, required=False, ignore=True)
         parser.add_argument('lon', type=float, required=False, ignore=True)
         parser.add_argument('datetime', type=str, required=False)
@@ -58,6 +60,9 @@ class SendResource(Resource):
         if args.get('datetime'):
             #dt = iso8601.parse_date(request.form['datetime'])
             data['displayTime'] = args['datetime']
+
+        if args['showConfirmation']:
+            data['showConfirmation'] = True
 
         # data['menuItems'] = []
         # data['menuItems'].append({
