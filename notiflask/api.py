@@ -157,14 +157,18 @@ class DeviceResource(Resource):
         manufacturer = args.get('manufacturer')
         device_id = args.get('id')
 
-        hasDevice = any(d['deviceId'] == device_id for d in user.devices)
+        dev = next((d for d in user.devices if d['deviceId'] == device_id), None)
+        #hasDevice = any(d['deviceId'] == device_id for d in user.devices)
 
-        if not hasDevice:
+        if not dev:
             user.devices.append(Device(deviceId=device_id, type="Android", model=model, manufacturer=manufacturer))
-            user.save()
-            return "", 201
+            code = 201
+        else:
+            dev.deviceId = device_id
+            code = 204
 
-        return "", 204
+        user.save()
+        return "", code
 
 
 api.add_resource(DeviceResource, '/api/v1/device')
