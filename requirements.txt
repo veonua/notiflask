@@ -3,7 +3,7 @@ Flask==0.10.1
 Jinja2==2.7.1
 MarkupSafe==0.18
 Werkzeug==0.15.3
-gunicorn==0.17.2
+gunicorn==19.5.0
 flask-mongoengine==0.7.0
 mongoengine==0.8.4
 httplib2
